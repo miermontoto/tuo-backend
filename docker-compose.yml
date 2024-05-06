@@ -1,0 +1,12 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: talentuo
+      MYSQL_DATABASE: presents
+      MYSQL_USER: mier
+      MYSQL_PASSWORD: talentuo
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql

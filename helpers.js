@@ -29,9 +29,8 @@ const validateParams = (params, res) => {
 
 const sendResponse = (res, status, message, optionals = {}) => {
 	res.status(status).json({
-		success: status < 400,
-		status: status,
-		message: message,
+		Success: status < 400,
+		Message: message,
 		...optionals
 	})
 }

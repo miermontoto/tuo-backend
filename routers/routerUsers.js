@@ -53,6 +53,8 @@ router.post("/login", (req, res) => {
 		time: Date.now()
 	}, secret)
 
+	// TODO: almacenar apiKey en la lista de claves activas
+
 	sendResponse(res, 200, "Token generado correctamente", { apiKey })
 })
 
