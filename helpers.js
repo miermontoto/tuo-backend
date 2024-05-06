@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken")
+const { Messages } = require("./messages.js")
 
 const secret = process.env.JWT_SECRET_KEY || "secret"
-const validateToken = (bearer, res) => {
+const validateToken = (bearer) => {
 	// regex bearer token
 	const regex = /^Bearer\s(.+)$/
 	const match = regex.exec(bearer)
@@ -11,26 +12,25 @@ const validateToken = (bearer, res) => {
 	try {
 		return jwt.verify(token, secret)
 	} catch (e) {
-		sendResponse(res, 401, "Petición no autorizada")
 		return false
 	}
 }
 
-const validateParams = (params, res) => {
+const validateParams = (params) => {
 	for (const param of params) {
 		if (param == undefined || param === "") {
-			sendResponse(res, 400, "Petición inválida: parámetros incorrectos")
-			return false
+			return Messages.INVALID_REQUEST
 		}
 	}
 
-	return true
+	return Messages.GENERIC_OK
 }
 
-const sendResponse = (res, status, message, optionals = {}) => {
+const sendResponse = (res, responseInfo, optionals = {}) => {
+	const status = responseInfo.status
 	res.status(status).json({
 		Success: status < 400,
-		Message: message,
+		Message: responseInfo,
 		...optionals
 	})
 }

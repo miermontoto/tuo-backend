@@ -1,27 +1,18 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
-let database = {
-	configuration: {
-		host: 'localhost',
-		root: 'root',
-		password: 'talentuo',
-		database: 'presents',
-		multipleStatements: true
-	},
-	connected: false,
-	mysqlConnection: null,
-	query: null,
-	connect() {
-		if (this.connected) {
-			return;
-		}
-		this.mysqlConnection = mysql.createConnection(this.configuration);
-		this.query = util.promisify(this.mysqlConnection.query).bind(this.mysqlConnection);
-	},
-	disconnect() {
-		this.mysqlConnection.end();
-		this.connected = false;
-	},
+const connection = mysql.createPool({
+	host: 'localhost',
+	user: 'mier',
+	password: 'talentuo',
+	database: 'presents'
+})
+
+const query = async (sql, values) => {
+	try {
+		return (await connection.promise().query(sql, values))[0]
+	} catch (e) {
+		return e
+	}
 }
 
-module.exports = database;
+module.exports = { query };

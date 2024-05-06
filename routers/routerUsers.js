@@ -3,6 +3,8 @@ const router = express.Router()
 const jwt = require("jsonwebtoken")
 
 const { validateToken, validateParams, sendResponse } = require("../helpers.js")
+const { createUser, checkCredentials } = require("../models/modelUsers.js")
+const { Messages } = require("../messages.js")
 
 module.exports = router
 
@@ -14,59 +16,74 @@ const secret = process.env.JWT_SECRET_KEY || "secret"
  * de datos. Se establecerá un criterio de seguridad por el que el password debe
  * tener al menos 5 caracteres.
  */
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
 	// validación de los datos de entrada
 	const email = req.body.email
-	const nombre = req.body.nombre
+	const name = req.body.nombre
 	const password = req.body.password
 
-	if (!validateParams([email, nombre, password], res)) return
-
-	if (password.length < 5) {
-		res.status(400).send("Petición inválida: la contraseña debe tener al menos 5 caracteres")
+	const params = validateParams([email, name, password])
+	if (params !== Messages.GENERIC_OK) {
+		sendResponse(res, params)
 		return
 	}
 
-	// TODO: almacenar usuario en base de datos
+	if (password.length < 5) {
+		sendResponse(res, Messages.INVALID_PASSWORD)
+		return
+	}
 
-	sendResponse(res, 201, "Usuario creado correctamente")
+	const result = await createUser(email, name, password)
+	sendResponse(res, result)
 })
 
 
 /**
- * Hacer login y generar una apiKey (JWT). Si la identificación es correcta se
- * debe almacenar la apiKey en la lista de claves activas. Como mínimo dentro
+ * Hacer login y generar una apiKey (JWT). Si la identificación es correcta, se
+ * debe almacenar la apiKey en la lista de claves activas. Como mínimo, dentro
  * de la apiKey se deberá almacenar la id y el email del usuario.
  */
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
 	const email = req.body.email
 	const password = req.body.password
 
 	// validación básica de los datos de entrada
-	if (!validateParams([email, password], res)) return
+	let result = validateParams([email, password])
+	if (result !== Messages.GENERIC_OK) {
+		sendResponse(res, result)
+		return
+	}
 
-	// TODO: comprobar credenciales en base de datos
+	// validación de las credenciales
+	result = await checkCredentials(email, password)
+	if (result === Messages.INVALID_CREDENTIALS) {
+		sendResponse(res, result)
+		return
+	}
 
 	const apiKey = jwt.sign({
-		id: 1,
-		email: 'test@test.com',
+		id: result[0].id,
+		email: result[0].email,
 		time: Date.now()
 	}, secret)
 
 	// TODO: almacenar apiKey en la lista de claves activas
 
-	sendResponse(res, 200, "Token generado correctamente", { apiKey })
+	sendResponse(res, Messages.LOGIN_SUCCESS, { apiKey })
 })
 
 
 /**
  * Cerrar sesión, se debe eliminar la apiKey de la lista de claves activas.
  */
-router.post("/disconnect", (req, res) => {
+router.post("/disconnect", async (req, res) => {
 	const apiKey = req.headers.authorization
-	if (!validateToken(apiKey, res)) return
+	if (!validateToken(apiKey, res)) {
+		sendRequest(res, Messages.TOKEN_INVALID)
+		return
+	}
 
 	// TODO: eliminar apiKey de la lista de claves activas
 
-	sendResponse(res, 200, "Sesión cerrada correctamente")
+	sendResponse(res, Messages.LOGOUT_SUCCESS)
 })
