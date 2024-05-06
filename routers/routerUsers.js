@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router()
+const jwt = require("jsonwebtoken")
 
 module.exports = router
 
@@ -21,7 +22,24 @@ router.post("/", (req, res) => {
  * de la apiKey se deberá almacenar la id y el email del usuario.
  */
 router.post("/login", (req, res) => {
+	const email = req.body.email
+	const password = req.body.password
 
+	// validación básica de los datos de entrada
+	if (email == undefined || password == undefined || email === "" || password === "") {
+		res.status(400).send("Bad request")
+		return
+	}
+
+	// TODO: comprobar credenciales en base de datos
+
+	const apiKey = jwt.sign({
+		id: 1,
+		email: 'test@test.com',
+		time: Date.now()
+	}, 'secret')
+
+	res.json({ apiKey: apiKey })
 })
 
 
@@ -29,5 +47,12 @@ router.post("/login", (req, res) => {
  * Cerrar sesión, se debe eliminar la apiKey de la lista de claves activas.
  */
 router.post("/disconnect", (req, res) => {
+	const apiKey = req.headers.authorization
 
+	if (apiKey == undefined || !jwt.verify(apiKey.split(" ")[1], 'secret')) {
+		res.status(401).send("Unauthorized")
+		return
+	}
+
+	res.status(200).send("OK")
 })
