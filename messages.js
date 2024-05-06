@@ -19,7 +19,7 @@ const Messages = {
 		message: "Petición inválida: la contraseña debe tener al menos 5 caracteres",
 		status: 400
 	},
-	TOKEN_INVALID: {
+	INVALID_TOKEN: {
 		message: "Petición inválida: token inválido",
 		status: 401
 	},

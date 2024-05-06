@@ -80,7 +80,7 @@ router.post("/login", async (req, res) => {
 router.post("/disconnect", async (req, res) => {
 	const apiKey = req.headers.authorization
 	if (!validateToken(apiKey, res)) {
-		sendResponse(res, Messages.TOKEN_INVALID)
+		sendResponse(res, Messages.INVALID_TOKEN)
 		return
 	}
 
