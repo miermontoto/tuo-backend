@@ -1,6 +1,14 @@
 const express = require("express")
 const app = express()
 
+const routerPresents = require("./routers/routerPresents")
+const routerFriends = require("./routers/routerFriends")
+const routerUsers = require("./routers/routerUsers")
+
+app.use("/presents", routerPresents)
+app.use("/friends", routerFriends)
+app.use("/users", routerUsers)
+
 app.get("/", (req, res) => {
 	res.send("Hello World")
 })
