@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 const { Messages } = require("./messages.js")
+const { checkToken } = require("./models/modelTokens.js")
 
 const secret = process.env.JWT_SECRET_KEY || "secret"
 const validateToken = (bearer) => {
@@ -10,7 +11,7 @@ const validateToken = (bearer) => {
 
 	const token = match[1]
 	try {
-		return jwt.verify(token, secret)
+		return jwt.verify(token, secret) && checkToken(token)
 	} catch (e) {
 		return false
 	}

@@ -23,10 +23,4 @@ const checkCredentials = async (email, password) => {
 	return user
 }
 
-const invalidateToken = async (token) => {
-	// TODO: invalidar token en base de datos
-
-	return Messages.LOGOUT_SUCCESS
-}
-
 module.exports = { createUser, checkCredentials }

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 
 const { validateToken, validateParams, sendResponse } = require("../helpers.js")
 const { createUser, checkCredentials } = require("../models/modelUsers.js")
+const { registerToken, invalidateToken } = require("../models/modelTokens.js")
 const { Messages } = require("../messages.js")
 
 module.exports = router
@@ -67,7 +68,7 @@ router.post("/login", async (req, res) => {
 		time: Date.now()
 	}, secret)
 
-	// TODO: almacenar apiKey en la lista de claves activas
+	registerToken(apiKey)
 
 	sendResponse(res, Messages.LOGIN_SUCCESS, { apiKey })
 })
@@ -79,11 +80,11 @@ router.post("/login", async (req, res) => {
 router.post("/disconnect", async (req, res) => {
 	const apiKey = req.headers.authorization
 	if (!validateToken(apiKey, res)) {
-		sendRequest(res, Messages.TOKEN_INVALID)
+		sendResponse(res, Messages.TOKEN_INVALID)
 		return
 	}
 
-	// TODO: eliminar apiKey de la lista de claves activas
+	invalidateToken(apiKey)
 
 	sendResponse(res, Messages.LOGOUT_SUCCESS)
 })
