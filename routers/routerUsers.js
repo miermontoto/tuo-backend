@@ -2,10 +2,11 @@ const express = require("express")
 const router = express.Router()
 const jwt = require("jsonwebtoken")
 
-const { validateToken, validateParams } = require("../helpers.js")
+const { validateToken, validateParams, sendResponse } = require("../helpers.js")
 
 module.exports = router
 
+const secret = process.env.JWT_SECRET_KEY || "secret"
 
 /**
  * Crear usuarios (email, nombre y password), no pueden existir 2 usuarios con
@@ -22,13 +23,13 @@ router.post("/", (req, res) => {
 	if (!validateParams([email, nombre, password], res)) return
 
 	if (password.length < 5) {
-		res.status(400).send("Bad request")
+		res.status(400).send("Petición inválida: la contraseña debe tener al menos 5 caracteres")
 		return
 	}
 
 	// TODO: almacenar usuario en base de datos
 
-	res.status(201).send("Created")
+	sendResponse(res, 201, "Usuario creado correctamente")
 })
 
 
@@ -50,9 +51,9 @@ router.post("/login", (req, res) => {
 		id: 1,
 		email: 'test@test.com',
 		time: Date.now()
-	}, 'secret')
+	}, secret)
 
-	res.json({ apiKey: apiKey })
+	sendResponse(res, 200, "Token generado correctamente", { apiKey })
 })
 
 
@@ -65,5 +66,5 @@ router.post("/disconnect", (req, res) => {
 
 	// TODO: eliminar apiKey de la lista de claves activas
 
-	res.status(200).send("OK")
+	sendResponse(res, 200, "Sesión cerrada correctamente")
 })

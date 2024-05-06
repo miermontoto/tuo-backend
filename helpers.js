@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
-const { param } = require("./routers/routerUsers")
+
+const secret = process.env.JWT_SECRET_KEY || "secret"
 const validateToken = (bearer, res) => {
 	// regex bearer token
 	const regex = /^Bearer\s(.+)$/
@@ -8,10 +9,9 @@ const validateToken = (bearer, res) => {
 
 	const token = match[1]
 	try {
-		jwt.verify(token, 'secret')
-		return true
+		return jwt.verify(token, secret)
 	} catch (e) {
-		res.status(401).send("Unauthorized")
+		sendResponse(res, 401, "Petición no autorizada")
 		return false
 	}
 }
@@ -19,7 +19,7 @@ const validateToken = (bearer, res) => {
 const validateParams = (params, res) => {
 	for (const param of params) {
 		if (param == undefined || param === "") {
-			res.status(400).send("Bad request")
+			sendResponse(res, 400, "Petición inválida: parámetros incorrectos")
 			return false
 		}
 	}
@@ -27,4 +27,13 @@ const validateParams = (params, res) => {
 	return true
 }
 
-module.exports = { validateToken, validateParams }
+const sendResponse = (res, status, message, optionals = {}) => {
+	res.status(status).json({
+		success: status < 400,
+		status: status,
+		message: message,
+		...optionals
+	})
+}
+
+module.exports = { validateToken, validateParams, sendResponse }
