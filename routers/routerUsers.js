@@ -2,6 +2,8 @@ const express = require("express")
 const router = express.Router()
 const jwt = require("jsonwebtoken")
 
+const { validateToken, validateParams } = require("../helpers.js")
+
 module.exports = router
 
 
@@ -12,7 +14,21 @@ module.exports = router
  * tener al menos 5 caracteres.
  */
 router.post("/", (req, res) => {
+	// validación de los datos de entrada
+	const email = req.body.email
+	const nombre = req.body.nombre
+	const password = req.body.password
 
+	if (!validateParams([email, nombre, password], res)) return
+
+	if (password.length < 5) {
+		res.status(400).send("Bad request")
+		return
+	}
+
+	// TODO: almacenar usuario en base de datos
+
+	res.status(201).send("Created")
 })
 
 
@@ -26,10 +42,7 @@ router.post("/login", (req, res) => {
 	const password = req.body.password
 
 	// validación básica de los datos de entrada
-	if (email == undefined || password == undefined || email === "" || password === "") {
-		res.status(400).send("Bad request")
-		return
-	}
+	if (!validateParams([email, password], res)) return
 
 	// TODO: comprobar credenciales en base de datos
 
@@ -48,11 +61,9 @@ router.post("/login", (req, res) => {
  */
 router.post("/disconnect", (req, res) => {
 	const apiKey = req.headers.authorization
+	if (!validateToken(apiKey, res)) return
 
-	if (apiKey == undefined || !jwt.verify(apiKey.split(" ")[1], 'secret')) {
-		res.status(401).send("Unauthorized")
-		return
-	}
+	// TODO: eliminar apiKey de la lista de claves activas
 
 	res.status(200).send("OK")
 })
