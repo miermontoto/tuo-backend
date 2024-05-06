@@ -1,0 +1,13 @@
+{
+  "name": "tuo-backend",
+  "version": "1.0.0",
+  "description": "Proyecto de backend para la aplicación de TalentUOk, desarrollado en Node.js con Express.js",
+  "author": "Juan Mier",
+  "main": "app.cjs",
+  "scripts": {
+    "start": "node app.cjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
