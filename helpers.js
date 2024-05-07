@@ -3,6 +3,8 @@ const { Messages } = require("./messages.js")
 const { checkToken } = require("./models/modelTokens.js")
 
 const secret = process.env.JWT_SECRET_KEY || "secret"
+
+
 const validateToken = (bearer) => {
 	// regex bearer token
 	const regex = /^Bearer\s(.+)$/
@@ -18,6 +20,7 @@ const validateToken = (bearer) => {
 	}
 }
 
+
 const validateParams = (params) => {
 	for (const param of params) {
 		if (param == undefined || param === "") {
@@ -28,13 +31,21 @@ const validateParams = (params) => {
 	return Messages.GENERIC_OK
 }
 
-const sendResponse = (res, responseInfo, optionals = {}) => {
+
+const sendResponse = (res, responseInfo, data = null) => {
 	const status = responseInfo.status
-	res.status(status).json({
-		Success: status < 400,
-		Message: responseInfo,
-		...optionals
-	})
+	let content
+
+	if (responseInfo.status < 400) {
+		content = { status: "success", data }
+	} else {
+		content = {
+			status: status >= 500 ? "error" : "fail",
+			message: responseInfo.message
+		}
+	}
+
+	res.status(status).json(content)
 }
 
 module.exports = { validateToken, validateParams, sendResponse }

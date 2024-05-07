@@ -67,7 +67,7 @@ router.get("/:id", async (req, res) => {
 
 	if (!checkPresent(res, result, req.user.id)) return
 
-	sendResponse(res, Messages.GENERIC_OK, {Present: result})
+	sendResponse(res, Messages.GENERIC_OK, {present: result})
 })
 
 
@@ -143,7 +143,7 @@ const getMyPresents = async (req, res) => {
 		return
 	}
 
-	sendResponse(res, Messages.GENERIC_OK, {Presents: result})
+	sendResponse(res, Messages.GENERIC_OK, {presents: result})
 }
 
 
@@ -169,5 +169,5 @@ const getFriendPresents = async (req, res) => {
 		return
 	}
 
-	sendResponse(res, Messages.GENERIC_OK, {Presents: presents})
+	sendResponse(res, Messages.GENERIC_OK, {presents: presents})
 }

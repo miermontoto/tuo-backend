@@ -1,6 +1,6 @@
 const Messages = {
 	USER_ALREADY_EXISTS: {
-		message: "Petición inválida: el email ya está en uso",
+		message: "El email ya está en uso",
 		status: 409
 	},
 	INTERNAL_ERROR: {
@@ -8,19 +8,19 @@ const Messages = {
 		status: 500
 	},
 	INVALID_REQUEST: {
-		message: "Petición inválida: parámetros incorrectos",
+		message: "Parámetros incorrectos",
 		status: 400
 	},
 	INVALID_CREDENTIALS: {
-		message: "Petición inválida: credenciales incorrectas",
+		message: "Credenciales incorrectas",
 		status: 401
 	},
 	INVALID_PASSWORD: {
-		message: "Petición inválida: la contraseña debe tener al menos 5 caracteres",
+		message: "La contraseña debe tener al menos 5 caracteres",
 		status: 400
 	},
 	INVALID_TOKEN: {
-		message: "Petición inválida: token inválido",
+		message: "Token inválido (inicio de sesión requerido)",
 		status: 401
 	},
 	USER_CREATED: {

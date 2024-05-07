@@ -51,7 +51,7 @@ router.get("/", async (req, res) => {
 		return
 	}
 
-	sendResponse(res, Messages.GENERIC_OK, {Friends: result})
+	sendResponse(res, Messages.GENERIC_OK, {friends: result})
 })
 
 
