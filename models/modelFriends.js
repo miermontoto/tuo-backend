@@ -1,12 +1,13 @@
 const { query } = require('../database')
 const { Messages } = require("../messages.js")
 
+
 const getFriends = async (email) => {
-	const queryStr = 'SELECT u.email, u.name FROM friends as f \
+	const sql = 'SELECT u.email, u.name FROM friends as f \
 		INNER JOIN users as u ON f.toUser = u.email \
 		WHERE f.fromUser = ?'
 
-	const result = await query(queryStr, [email])
+	const result = await query(sql, [email])
 
 	if (result.errno) return Messages.INTERNAL_ERROR
 
@@ -22,6 +23,7 @@ const addFriend = async (fromUser, toUser) => {
 	if (result.errno) return Messages.INTERNAL_ERROR
 	return Messages.ADDED_FRIEND
 }
+
 
 const deleteFriend = async (fromUser, toUser) => {
 	const result = await query('DELETE FROM friends WHERE fromUser = ? AND toUser = ?', [fromUser, toUser])
