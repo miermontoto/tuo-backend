@@ -1,6 +1,10 @@
 const express = require('express')
 const router = express.Router()
 
+const { addFriend, getFriends, deleteFriend } = require("../models/modelFriends")
+const { sendResponse, validateParams } = require("../helpers")
+const { Messages } = require("../messages")
+
 module.exports = router
 
 
@@ -13,8 +17,19 @@ module.exports = router
  *
  * Este endpoint recibirá a través del body el email del amigo.
  */
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
+	const user = req.user
+	const targetEmail = req.body.email
 
+	// validación de parámetros
+	const validate = validateParams([targetEmail])
+	if (validate !== Messages.GENERIC_OK) {
+		sendResponse(res, validate)
+		return
+	}
+
+	const result = await addFriend(user.email, targetEmail)
+	sendResponse(res, result)
 })
 
 
@@ -22,8 +37,16 @@ router.post("/", (req, res) => {
  * Ver lista de amigos, el usuario identificado por medio de la apiKey podrá
  * obtener su lista de amigos.
  */
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
+	const user = req.user
+	const result = await getFriends(user.email)
 
+	if (result === Messages.INTERNAL_ERROR) {
+		sendResponse(res, result)
+		return
+	}
+
+	sendResponse(res, Messages.GENERIC_OK, {Friends: result})
 })
 
 
@@ -31,6 +54,10 @@ router.get("/", (req, res) => {
  * Eliminar el amigo enviado como parámetro (:email) del usuario que está
  * identificado en sesión (por medio de su apiKey)
  */
-router.delete("/:email", (req, res) => {
+router.delete("/:email", async (req, res) => {
+	const user = req.user
+	const targetEmail = req.params.email
 
+	const result = await deleteFriend(user.email, targetEmail)
+	sendResponse(res, result)
 })

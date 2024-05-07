@@ -11,7 +11,8 @@ const validateToken = (bearer) => {
 
 	const token = match[1]
 	try {
-		return jwt.verify(token, secret) && checkToken(token)
+		if (!checkToken(token)) return false
+		return jwt.verify(token, secret)
 	} catch (e) {
 		return false
 	}

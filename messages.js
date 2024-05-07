@@ -39,6 +39,26 @@ const Messages = {
 		message: "Petición válida",
 		status: 200
 	},
+	ADDED_FRIEND: {
+		message: "Amigo añadido correctamente",
+		status: 201
+	},
+	DELETED_FRIEND: {
+		message: "Amigo eliminado correctamente",
+		status: 200
+	},
+	ALREADY_BEFRIENDED: {
+		message: "Ya eres amigo de esta persona",
+		status: 409
+	},
+	INVALID_USER_EMAIL: {
+		message: "El email del amigo no es válido",
+		status: 400
+	},
+	NOT_BEFRIENDED: {
+		message: "No eres amigo de esta persona",
+		status: 409
+	}
 }
 
 module.exports = { Messages }

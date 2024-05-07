@@ -7,13 +7,16 @@ const { Messages } = require("./messages")
 
 app.use(express.json()) // middleware que parsea el body de las peticiones
 
+// middleware que valida el token de las rutas /presents y /friends
 app.use(["/presents", "/friends"], (req, res, next) => {
 	const token = req.headers.authorization
-	if (!validateToken(token)) {
+	const verified = validateToken(token)
+	if (!verified) {
 		sendResponse(res, Messages.INVALID_TOKEN)
 		return
 	}
 
+	req.user = verified
 	next()
 })
 
