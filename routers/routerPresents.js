@@ -2,6 +2,8 @@ const express = require("express")
 const router = express.Router()
 
 const { getPresents, getPresent, addPresent, updatePresent, deletePresent } = require("../models/modelPresents")
+const { areFriends } = require("../models/modelFriends")
+const { getIdFromEmail } = require("../models/modelUsers")
 const { Messages } = require("../messages")
 const { sendResponse, validateParams } = require("../helpers")
 
@@ -35,14 +37,14 @@ router.post("/", async (req, res) => {
  * la cual contiene el email del usuario en cuestión.
  */
 router.get("/", async (req, res) => {
-	const result = await getPresents(req.user.id)
+	const friendEmail = req.query.userEmail
 
-	if (result === Messages.INTERNAL_ERROR) {
-		sendResponse(res, result)
+	if (validateParams([friendEmail]).status == 200) {
+		await getFriendPresents(req, res)
 		return
 	}
 
-	sendResponse(res, Messages.GENERIC_OK, {Presents: result})
+	await getMyPresents(req, res)
 })
 
 
@@ -119,7 +121,7 @@ router.put("/:id", async (req, res) => {
 
 
 const checkPresent = (res, result, userId) => {
-	if (!('userId' in result)) {
+	if (result.status) {
 		sendResponse(res, result)
 		return false
 	}
@@ -130,4 +132,42 @@ const checkPresent = (res, result, userId) => {
 	}
 
 	return true
+}
+
+
+const getMyPresents = async (req, res) => {
+	const result = await getPresents(req.user.id)
+
+	if (result.status) {
+		sendResponse(res, result)
+		return
+	}
+
+	sendResponse(res, Messages.GENERIC_OK, {Presents: result})
+}
+
+
+const getFriendPresents = async (req, res) => {
+	const friendEmail = req.query.userEmail
+	const befriended = await areFriends(friendEmail, req.user.email)
+
+	if (befriended != Messages.GENERIC_OK) {
+		sendResponse(res, befriended)
+		return
+	}
+
+	const friendId = await getIdFromEmail(friendEmail)
+	if (friendId.status) {
+		sendResponse(res, friendId)
+		return
+	}
+
+	const presents = await getPresents(friendId)
+
+	if (friendId.status) {
+		sendResponse(res, presents)
+		return
+	}
+
+	sendResponse(res, Messages.GENERIC_OK, {Presents: presents})
 }

@@ -23,4 +23,14 @@ const checkCredentials = async (email, password) => {
 	return user
 }
 
-module.exports = { createUser, checkCredentials }
+
+const getIdFromEmail = async (email) => {
+	const user = await query('SELECT id FROM users WHERE email = ?', [email])
+
+	if (user.errno) return Messages.INTERNAL_ERROR
+	if (user.length === 0) return Messages.USER_DOES_NOT_EXIST
+
+	return user[0].id
+}
+
+module.exports = { createUser, checkCredentials, getIdFromEmail }

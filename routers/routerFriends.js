@@ -28,6 +28,11 @@ router.post("/", async (req, res) => {
 		return
 	}
 
+	if (user.email === targetEmail) {
+		sendResponse(res, Messages.CANT_FRIEND_YOURSELF)
+		return
+	}
+
 	const result = await addFriend(user.email, targetEmail)
 	sendResponse(res, result)
 })

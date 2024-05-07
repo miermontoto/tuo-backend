@@ -79,6 +79,18 @@ const Messages = {
 		message: "Regalo eliminado correctamente",
 		status: 200
 	},
+	NOT_YOUR_FRIEND: {
+		message: "Esta persona no te tiene en su lista de amigos",
+		status: 403
+	},
+	USER_DOES_NOT_EXIST: {
+		message: "El usuario no existe",
+		status: 404
+	},
+	CANT_FRIEND_YOURSELF: {
+		message: "No puedes ser amigo de ti mismo",
+		status: 400
+	},
 }
 
 module.exports = { Messages }

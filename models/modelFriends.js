@@ -34,4 +34,16 @@ const deleteFriend = async (fromUser, toUser) => {
 	return Messages.NOT_BEFRIENDED
 }
 
-module.exports = { addFriend, getFriends, deleteFriend }
+
+const areFriends = async (fromUser, toUser) => {
+	const sql = 'SELECT * FROM friends WHERE fromUser = ? AND toUser = ?'
+
+	const result = await query(sql, [fromUser, toUser])
+
+	if (result.errno) return Messages.INTERNAL_ERROR
+	if (result.length == 0) return Messages.NOT_BEFRIENDED
+	return Messages.GENERIC_OK
+}
+
+
+module.exports = { addFriend, getFriends, deleteFriend, areFriends }
