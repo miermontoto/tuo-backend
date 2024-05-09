@@ -16,9 +16,10 @@ const getPresents = async (userId) => {
 
 
 const getPresent = async (presentId) => {
-	const sql = 'SELECT id, name, description, url, price, chosenBy, userId \
-		FROM presents \
-		WHERE id = ?'
+	const sql = 'SELECT p.id, p.name, p.description, p.url, p.price, p.chosenBy, p.userId, u.email \
+		FROM presents as p \
+		INNER JOIN users as u ON p.userId = u.id \
+		WHERE p.id = ?'
 
 	const result = await query(sql, [presentId])
 
@@ -54,4 +55,13 @@ const deletePresent = async (presentId) => {
 	return Messages.PRESENT_DELETED
 }
 
-module.exports = { getPresents, getPresent, addPresent, updatePresent, deletePresent }
+
+const choosePresent = async (presentId, userId) => {
+	const result = await query('UPDATE presents SET chosenBy = ? WHERE id = ?', [userId, presentId])
+
+	if (result.errno) return Messages.INTERNAL_ERROR
+	if (result.affectedRows == 0) return Messages.PRESENT_NOT_FOUND
+	return Messages.PRESENT_CHOSEN
+}
+
+module.exports = { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent }

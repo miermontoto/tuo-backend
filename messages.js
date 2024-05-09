@@ -56,7 +56,7 @@ const Messages = {
 		status: 400
 	},
 	NOT_BEFRIENDED: {
-		message: "No eres amigo de esta persona",
+		message: "Esta persona no es tu amigo",
 		status: 409
 	},
 	PRESENT_NOT_FOUND: {
@@ -90,6 +90,18 @@ const Messages = {
 	CANT_FRIEND_YOURSELF: {
 		message: "No puedes ser amigo de ti mismo",
 		status: 400
+	},
+	PRESENT_ALREADY_CHOSEN: {
+		message: "Este regalo ya ha sido elegido",
+		status: 409
+	},
+	CANNOT_SELF_CHOOSE: {
+		message: "No puedes elegir un regalo tuyo",
+		status: 400
+	},
+	PRESENT_CHOSEN: {
+		message: "Regalo elegido correctamente",
+		status: 200
 	},
 }
 

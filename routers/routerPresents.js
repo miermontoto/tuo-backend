@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const { getPresents, getPresent, addPresent, updatePresent, deletePresent } = require("../models/modelPresents")
+const { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent } = require("../models/modelPresents")
 const { areFriends } = require("../models/modelFriends")
 const { getIdFromEmail } = require("../models/modelUsers")
 const { Messages } = require("../messages")
@@ -104,6 +104,19 @@ router.delete("/:id", async (req, res) => {
  */
 router.put("/:id", async (req, res) => {
 	const presentId = req.params.id
+
+	const result = await getPresent(presentId)
+
+	if (result.status) {
+		sendResponse(res, result)
+		return
+	}
+
+	if (result.userId !== req.user.id) {
+		await tryChoosingPresent(req, res, result)
+		return
+	}
+
 	const { name, description, url, price } = req.body
 
 	const validate = validateParams([presentId, name, description, url, price])
@@ -111,9 +124,6 @@ router.put("/:id", async (req, res) => {
 		sendResponse(res, validate)
 		return
 	}
-
-	const result = await getPresent(presentId)
-	if (!checkPresent(res, result, req.user.id)) return
 
 	const updated = await updatePresent(presentId, name, description, url, price)
 	sendResponse(res, updated)
@@ -170,4 +180,41 @@ const getFriendPresents = async (req, res) => {
 	}
 
 	sendResponse(res, Messages.GENERIC_OK, {presents: presents})
+}
+
+
+const tryChoosingPresent = async (req, res, present) => {
+	if (present.chosenBy) {
+		sendResponse(res, Messages.PRESENT_ALREADY_CHOSEN)
+		return
+	}
+
+	if (present.userId == req.user.id) {
+		sendResponse(res, Messages.CANNOT_SELF_CHOOSE)
+		return
+	}
+
+	const friendEmail = present.email
+
+	// comprobar si estoy en su lista de amigos
+	const check1 = await areFriends(friendEmail, req.user.email)
+	if (check1.status != 200) {
+		sendResponse(res, check1)
+		return
+	}
+
+	// comprobar si está en mi lista de miamigos
+	const check2 = await areFriends(req.user.email, friendEmail)
+	if (check2 == Messages.NOT_YOUR_FRIEND) {
+		sendResponse(res, Messages.NOT_BEFRIENDED)
+		return
+	}
+
+	if (check2.status != 200) {
+		sendResponse(res, check2)
+		return
+	}
+
+	const result = await choosePresent(present.id, req.user.id)
+	sendResponse(res, result)
 }

@@ -41,7 +41,7 @@ const areFriends = async (fromUser, toUser) => {
 	const result = await query(sql, [fromUser, toUser])
 
 	if (result.errno) return Messages.INTERNAL_ERROR
-	if (result.length == 0) return Messages.NOT_BEFRIENDED
+	if (result.length == 0) return Messages.NOT_YOUR_FRIEND
 	return Messages.GENERIC_OK
 }
 
