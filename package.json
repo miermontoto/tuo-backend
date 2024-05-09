@@ -5,7 +5,8 @@
   "author": "Juan Mier",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "ninja": "console-ninja node app.js"
   },
   "dependencies": {
     "express": "^4.19.2",

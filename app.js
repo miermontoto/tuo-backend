@@ -4,6 +4,7 @@ const port = process.env.APP_PORT || 3000
 
 const { validateToken, sendResponse } = require("./helpers")
 const { Messages } = require("./messages")
+const { testConnection } = require("./database")
 
 app.use(express.json()) // middleware que parsea el body de las peticiones
 
@@ -28,4 +29,4 @@ app.use("/presents", routerPresents)
 app.use("/friends", routerFriends)
 app.use("/users", routerUsers)
 
-app.listen(port, () => {})
+app.listen(port, () => { testConnection() })

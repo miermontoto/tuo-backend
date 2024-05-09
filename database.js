@@ -7,12 +7,21 @@ const connection = mysql.createPool({
 	database: 'presents'
 })
 
-const query = async (sql, values) => {
+const query = async (sql, values = []) => {
 	try {
 		return (await connection.promise().query(sql, values))[0]
 	} catch (e) {
+		if (e.code === 'ECONNREFUSED') {
+			console.error('database connection refused (offline/invalid config)')
+			process.exit(1)
+		}
 		return e
 	}
 }
 
-module.exports = { query };
+
+const testConnection = async () => {
+	query('SELECT 1 + 1 AS solution')
+}
+
+module.exports = { query, testConnection };
