@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
 
 	// validación básica de los datos de entrada
 	let result = validateParams([email, password])
-	if (result !== Messages.GENERIC_OK) {
+	if (result.status != 200) {
 		sendResponse(res, result)
 		return
 	}
@@ -63,14 +63,13 @@ router.post("/login", async (req, res) => {
 	}
 
 	const apiKey = jwt.sign({
-		id: result[0].id,
-		email: result[0].email,
+		email: result.email,
 		time: Date.now()
 	}, secret)
 
 	registerToken(apiKey)
 
-	sendResponse(res, Messages.LOGIN_SUCCESS, { apiKey })
+	sendResponse(res, Messages.LOGIN_SUCCESS, { apiKey, user: result })
 })
 
 
