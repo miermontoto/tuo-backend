@@ -1,4 +1,6 @@
 const express = require("express")
+const cors = require("cors")
+
 const app = express()
 const port = process.env.APP_PORT || 3000
 
@@ -20,6 +22,12 @@ app.use(["/presents", "/friends"], (req, res, next) => {
 	req.user = verified
 	next()
 })
+
+app.use(cors({
+	origin: "*",
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	credentials: true
+}))
 
 const routerPresents = require("./routers/routerPresents")
 const routerFriends = require("./routers/routerFriends")
