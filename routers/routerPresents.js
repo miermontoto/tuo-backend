@@ -39,6 +39,9 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
 	const friendEmail = req.query.userEmail
 
+	// si se ha pasado un email en el campo userEmail, tratar de
+	// obtener los regalos de ese usuario, en caso contrario
+	// obtener los regalos del usuario que ejecuta el servicio.
 	if (validateParams([friendEmail]).status == 200) {
 		await getFriendPresents(req, res)
 		return
@@ -83,7 +86,7 @@ router.delete("/:id", async (req, res) => {
 	const presentId = req.params.id
 
 	const validate = validateParams([presentId])
-	if (validate !== Messages.GENERIC_OK) {
+	if (validate.status != 200) {
 		sendResponse(res, validate)
 		return
 	}
@@ -112,11 +115,14 @@ router.put("/:id", async (req, res) => {
 		return
 	}
 
+	// si el usuario que realiza la petición no es el dueño del regalo,
+	// tratar de elegir el regalo en nombre del usuario de la petición.
 	if (result.userId !== req.user.id) {
 		await tryChoosingPresent(req, res, result)
 		return
 	}
 
+	// en caso contrario, actualizar el regalo de manera normal.
 	const { name, description, url, price } = req.body
 
 	const validate = validateParams([presentId, name, description, url, price])
@@ -130,13 +136,17 @@ router.put("/:id", async (req, res) => {
 })
 
 
-const checkPresent = (res, result, userId) => {
-	if (result.status) {
+/**
+ * Comprobar si la respuesta de @code{getPresent} es correcta y el regalo
+ * obtenido es del usuario que ejecuta la petición.
+ */
+const checkPresent = (req, res, result) => {
+	if (result.status != 200) {
 		sendResponse(res, result)
 		return false
 	}
 
-	if (result.userId !== userId) {
+	if (result.userId !== req.user.id) {
 		sendResponse(res, Messages.NOT_YOUR_PRESENT)
 		return false
 	}
@@ -161,20 +171,22 @@ const getFriendPresents = async (req, res) => {
 	const friendEmail = req.query.userEmail
 	const befriended = await areFriends(friendEmail, req.user.email)
 
-	if (befriended != Messages.GENERIC_OK) {
+	// comprobar si estoy en la lista de amigos del otro usuario
+	if (befriended.status != 200) {
 		sendResponse(res, befriended)
 		return
 	}
 
+	// obtener id del amigo y comprobar errores
 	const friendId = await getIdFromEmail(friendEmail)
 	if (friendId.status) {
 		sendResponse(res, friendId)
 		return
 	}
 
+	// obtener regalos del amigo y validar errores
 	const presents = await getPresents(friendId)
-
-	if (friendId.status) {
+	if (present.status != 200) {
 		sendResponse(res, presents)
 		return
 	}
@@ -184,11 +196,13 @@ const getFriendPresents = async (req, res) => {
 
 
 const tryChoosingPresent = async (req, res, present) => {
+	// no se puede elegir un regalo ya elegido
 	if (present.chosenBy) {
 		sendResponse(res, Messages.PRESENT_ALREADY_CHOSEN)
 		return
 	}
 
+	// no se puede escoger tu propio regalo
 	if (present.userId == req.user.id) {
 		sendResponse(res, Messages.CANNOT_SELF_CHOOSE)
 		return
@@ -205,11 +219,12 @@ const tryChoosingPresent = async (req, res, present) => {
 
 	// comprobar si está en mi lista de miamigos
 	const check2 = await areFriends(req.user.email, friendEmail)
-	if (check2 == Messages.NOT_YOUR_FRIEND) {
+	if (check2 == Messages.NOT_YOUR_FRIEND) { // intercambiar mensaje de error
 		sendResponse(res, Messages.NOT_BEFRIENDED)
 		return
 	}
 
+	// comprobación genérica de errores (podría ser 500)
 	if (check2.status != 200) {
 		sendResponse(res, check2)
 		return
