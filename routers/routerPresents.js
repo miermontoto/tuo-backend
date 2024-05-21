@@ -186,7 +186,7 @@ const getFriendPresents = async (req, res) => {
 
 	// obtener regalos del amigo y validar errores
 	const presents = await getPresents(friendId)
-	if (present.status != 200) {
+	if (presents === Messages.INTERNAL_ERROR) {
 		sendResponse(res, presents)
 		return
 	}
