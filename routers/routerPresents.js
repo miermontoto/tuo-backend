@@ -19,7 +19,7 @@ module.exports = router
 router.post("/", async (req, res) => {
 	const { name, description, url, price } = req.body
 
-	const validate = validateParams([name, description, url, price])
+	const validate = validateParams([name, price])
 	if (validate !== Messages.GENERIC_OK) {
 		sendResponse(res, validate)
 		return
