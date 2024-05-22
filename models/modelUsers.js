@@ -10,7 +10,7 @@ const createUser = async (email, name, password) => {
 }
 
 const checkCredentials = async (email, password) => {
-	const user = await query('SELECT email, name, password, role FROM users WHERE email = ? AND password = ?', [email, password])
+	const user = await query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password])
 
 	if (user.length === 0) return Messages.INVALID_CREDENTIALS
 

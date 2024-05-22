@@ -68,7 +68,7 @@ router.get("/:id", async (req, res) => {
 
 	const result = await getPresent(presentId)
 
-	if (!checkPresent(res, result, req.user.id)) return
+	if (!checkPresent(req, res, result)) return
 
 	sendResponse(res, Messages.GENERIC_OK, {present: result})
 })
@@ -92,7 +92,7 @@ router.delete("/:id", async (req, res) => {
 	}
 
 	const result = await getPresent(presentId)
-	if (!checkPresent(res, result, req.user.id)) return
+	if (!checkPresent(req, res, result)) return
 
 	const deleted = await deletePresent(presentId)
 	sendResponse(res, deleted)
@@ -141,7 +141,7 @@ router.put("/:id", async (req, res) => {
  * obtenido es del usuario que ejecuta la petición.
  */
 const checkPresent = (req, res, result) => {
-	if (result.status != 200) {
+	if (result.status) {
 		sendResponse(res, result)
 		return false
 	}

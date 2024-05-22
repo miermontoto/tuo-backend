@@ -10,10 +10,17 @@ const { testConnection } = require("./database")
 
 app.use(express.json()) // middleware que parsea el body de las peticiones
 
+app.use(cors({
+	origin: "*",
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	allowedHeaders: ["Content-Type", "Authorization"]
+})) // middleware que habilita CORS
+
 // middleware que valida el token de las rutas /presents y /friends
 app.use(["/presents", "/friends"], (req, res, next) => {
 	const token = req.headers.authorization
 	const verified = validateToken(token)
+
 	if (!verified) {
 		sendResponse(res, Messages.INVALID_TOKEN)
 		return
@@ -22,12 +29,6 @@ app.use(["/presents", "/friends"], (req, res, next) => {
 	req.user = verified
 	next()
 })
-
-app.use(cors({
-	origin: "*",
-	methods: ["GET", "POST", "PUT", "DELETE"],
-	credentials: true
-}))
 
 const routerPresents = require("./routers/routerPresents")
 const routerFriends = require("./routers/routerFriends")

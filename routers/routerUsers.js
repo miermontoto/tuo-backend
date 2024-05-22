@@ -63,6 +63,7 @@ router.post("/login", async (req, res) => {
 	}
 
 	const apiKey = jwt.sign({
+		id: result.id,
 		email: result.email,
 		time: Date.now()
 	}, secret)
