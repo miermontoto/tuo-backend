@@ -125,7 +125,7 @@ router.put("/:id", async (req, res) => {
 	// en caso contrario, actualizar el regalo de manera normal.
 	const { name, description, url, price } = req.body
 
-	const validate = validateParams([presentId, name, description, url, price])
+	const validate = validateParams([presentId, name, price])
 	if (validate !== Messages.GENERIC_OK) {
 		sendResponse(res, validate)
 		return
