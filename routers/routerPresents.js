@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
 	// si se ha pasado un email en el campo userEmail, tratar de
 	// obtener los regalos de ese usuario, en caso contrario
 	// obtener los regalos del usuario que ejecuta el servicio.
-	if (validateParams([friendEmail]).status == 200) {
+	if (validateParams([friendEmail]).status == 200 && friendEmail !== req.user.email) {
 		await getFriendPresents(req, res)
 		return
 	}
