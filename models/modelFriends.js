@@ -45,5 +45,26 @@ const areFriends = async (fromUser, toUser) => {
 	return Messages.GENERIC_OK
 }
 
+const checkFriendship = async (myEmail, friendEmail) => {
+	// comprobar si estoy en su lista de amigos
+	const check1 = await areFriends(friendEmail, myEmail)
+	if (check1.status != 200) {
+		return check1
+	}
 
-module.exports = { addFriend, getFriends, deleteFriend, areFriends }
+	// comprobar si está en mi lista de miamigos
+	const check2 = await areFriends(myEmail, friendEmail)
+	if (check2 == Messages.NOT_YOUR_FRIEND) { // intercambiar mensaje de error
+		return Messages.NOT_BEFRIENDED
+	}
+
+	// comprobación genérica de errores (podría ser 500)
+	if (check2.status != 200) {
+		return check2
+	}
+
+	return Messages.GENERIC_OK
+}
+
+
+module.exports = { addFriend, getFriends, deleteFriend, areFriends, checkFriendship }
