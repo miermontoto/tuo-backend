@@ -3,7 +3,7 @@ const router = express.Router()
 const jwt = require("jsonwebtoken")
 
 const { validateToken, validateParams, sendResponse } = require("../helpers.js")
-const { createUser, checkCredentials } = require("../models/modelUsers.js")
+const { createUser, checkCredentials, getUser } = require("../models/modelUsers.js")
 const { registerToken, invalidateToken } = require("../models/modelTokens.js")
 const { Messages } = require("../messages.js")
 
@@ -36,6 +36,31 @@ router.post("/", async (req, res) => {
 
 	const result = await createUser(email, name, password)
 	sendResponse(res, result)
+})
+
+
+router.get("/", async (req, res) => {
+	if (!req.query.userEmail && !req.headers.authorization) {
+		sendResponse(res, Messages.INVALID_REQUEST)
+		return
+	}
+
+	let validated;
+	if (!req.query.userEmail && req.headers.authorization) {
+		validated = validateToken(req.headers.authorization)
+		if (!validated) {
+			sendResponse(res, Messages.INVALID_TOKEN)
+			return
+		}
+	}
+
+	const user = await getUser(req.query.userEmail ? req.query.userEmail : validated.email)
+	if (user.status) {
+		sendResponse(res, user)
+		return
+	}
+
+	sendResponse(res, Messages.GENERIC_OK, user)
 })
 
 
@@ -79,7 +104,7 @@ router.post("/login", async (req, res) => {
  */
 router.post("/disconnect", async (req, res) => {
 	const apiKey = req.headers.authorization
-	if (!validateToken(apiKey, res)) {
+	if (!validateToken(apiKey)) {
 		sendResponse(res, Messages.INVALID_TOKEN)
 		return
 	}
