@@ -11,7 +11,24 @@ const createUser = async (email, name, password) => {
 
 
 const getUser = async (email) => {
-	const user = await query('SELECT id, email, name, role FROM users WHERE email = ?', [email])
+	const queryStr = '\
+	SELECT u.id, u.email, u.name, u.role, \
+		IFNULL(friends_count.friends, 0) as friends, \
+		IFNULL(presents_count.presents, 0) as presents \
+	FROM users as u \
+	LEFT JOIN ( \
+		SELECT fromUser, COUNT(*) as friends \
+		FROM friends \
+		GROUP BY fromUser \
+	) as friends_count ON u.email = friends_count.fromUser \
+	LEFT JOIN ( \
+		SELECT userId, COUNT(*) as presents \
+		FROM presents \
+		GROUP BY userId \
+	) as presents_count ON u.id = presents_count.userId \
+	WHERE u.email = ?'
+
+	const user = await query(queryStr, [email])
 
 	if (user.errno) return Messages.INTERNAL_ERROR
 	if (user.length === 0) return Messages.USER_DOES_NOT_EXIST
