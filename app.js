@@ -2,7 +2,7 @@ const express = require("express")
 const cors = require("cors")
 
 const app = express()
-const port = process.env.APP_PORT || 3000
+const port = process.env.API_PORT || 3001
 
 const { validateToken, sendResponse } = require("./helpers")
 const { Messages } = require("./messages")
@@ -37,5 +37,7 @@ const routerUsers = require("./routers/routerUsers")
 app.use("/presents", routerPresents)
 app.use("/friends", routerFriends)
 app.use("/users", routerUsers)
+
+app.use("/health", (req, res) => { sendResponse(res, Messages.GENERIC_OK) })
 
 app.listen(port, () => { testConnection() })
