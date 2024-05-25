@@ -2,10 +2,13 @@ const { query } = require('../database')
 const { Messages } = require("../messages.js")
 
 
-const getFriends = async (email) => {
-	const sql = 'SELECT u.email, u.name FROM friends as f \
-		INNER JOIN users as u ON f.toUser = u.email \
-		WHERE f.fromUser = ?'
+const getFriends = async (email, withFriendship = false) => {
+	const sql = `SELECT u.email, u.name \
+	${withFriendship ? ',CASE WHEN f2.toUser IS NOT NULL THEN TRUE ELSE FALSE END as friendship' : ''} \
+	FROM friends as f \
+	INNER JOIN users as u ON f.toUser = u.email \
+	${withFriendship ? 'LEFT JOIN friends as f2 ON f2.fromUser = f.toUser AND f2.toUser = f.fromUser' : ''} \
+	WHERE f.fromUser = ?`
 
 	const result = await query(sql, [email])
 
@@ -45,26 +48,5 @@ const areFriends = async (fromUser, toUser) => {
 	return Messages.GENERIC_OK
 }
 
-const checkFriendship = async (myEmail, friendEmail) => {
-	// comprobar si estoy en su lista de amigos
-	const check1 = await areFriends(friendEmail, myEmail)
-	if (check1.status != 200) {
-		return check1
-	}
 
-	// comprobar si está en mi lista de miamigos
-	const check2 = await areFriends(myEmail, friendEmail)
-	if (check2 == Messages.NOT_YOUR_FRIEND) { // intercambiar mensaje de error
-		return Messages.NOT_BEFRIENDED
-	}
-
-	// comprobación genérica de errores (podría ser 500)
-	if (check2.status != 200) {
-		return check2
-	}
-
-	return Messages.GENERIC_OK
-}
-
-
-module.exports = { addFriend, getFriends, deleteFriend, areFriends, checkFriendship }
+module.exports = { addFriend, getFriends, deleteFriend, areFriends }

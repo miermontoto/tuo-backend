@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 
 const { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent } = require("../models/modelPresents")
-const { areFriends, checkFriendship } = require("../models/modelFriends")
+const { areFriends, getFriends } = require("../models/modelFriends")
 const { getIdFromEmail } = require("../models/modelUsers")
 const { Messages } = require("../messages")
 const { sendResponse, validateParams } = require("../helpers")
@@ -208,7 +208,22 @@ const tryChoosingPresent = async (req, res, present) => {
 		return
 	}
 
-	const friendship = checkFriendship(req.user.email, present.email)
+	const friendList = await getFriends(req.user.email, true)
+
+	if (friendList.status) {
+		sendResponse(res, friendList)
+		return
+	}
+
+	if (!friendList.some(friend => friend.email === present.userEmail)) {
+		sendResponse(res, Messages.NOT_BEFRIENDED)
+		return
+	}
+
+	if (!friendList.some(friend => (friend.email === present.userEmail && friend.friendship === 1))) {
+		sendResponse(res, Messages.NOT_YOUR_FRIEND)
+		return
+	}
 
 	if (friendship.status != 200) {
 		sendResponse(res, friendship)

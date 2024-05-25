@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { addFriend, getFriends, deleteFriend, checkFriendship } = require("../models/modelFriends")
+const { addFriend, getFriends, deleteFriend } = require("../models/modelFriends")
 const { sendResponse, validateParams } = require("../helpers")
 const { Messages } = require("../messages")
 
@@ -45,13 +45,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
 	const user = req.user
 
-	if (req.query.userEmail) {
-		const response = await checkFriendship(user.email, req.query.userEmail)
-		sendResponse(res, response, response.status === 200)
-		return
-	}
-
-	const result = await getFriends(user.email)
+	const result = await getFriends(user.email, req.query.with === "friendship")
 
 	if (result === Messages.INTERNAL_ERROR) {
 		sendResponse(res, result)
