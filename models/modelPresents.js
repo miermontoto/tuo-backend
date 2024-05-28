@@ -64,4 +64,17 @@ const choosePresent = async (presentId, userId) => {
 	return Messages.PRESENT_CHOSEN
 }
 
-module.exports = { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent }
+const chosenPresents = async (userId) => {
+	const sql = 'SELECT p.id, p.name, p.description, p.url, p.price, u.email \
+		FROM presents as p \
+		INNER JOIN users as u ON p.userId = u.id \
+		WHERE chosenBy = ?'
+
+	const result = await query(sql, [userId])
+
+	if (result.errno) return Messages.INTERNAL_ERROR
+
+	return result
+}
+
+module.exports = { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent, chosenPresents }

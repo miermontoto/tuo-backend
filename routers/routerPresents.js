@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent } = require("../models/modelPresents")
+const { getPresents, getPresent, addPresent, updatePresent, deletePresent, choosePresent, chosenPresents } = require("../models/modelPresents")
 const { areFriends, getFriends } = require("../models/modelFriends")
 const { getIdFromEmail } = require("../models/modelUsers")
 const { Messages } = require("../messages")
@@ -48,6 +48,18 @@ router.get("/", async (req, res) => {
 	}
 
 	await getMyPresents(req, res)
+})
+
+
+router.get("/chosen", async (req, res) => {
+	const result = await chosenPresents(req.user.id)
+
+	if (result.status) {
+		sendResponse(res, result)
+		return
+	}
+
+	sendResponse(res, Messages.GENERIC_OK, {presents: result})
 })
 
 
@@ -156,6 +168,7 @@ router.put("/:id", async (req, res) => {
 	const updated = await updatePresent(presentId, name, description, url, price)
 	sendResponse(res, updated)
 })
+
 
 
 const getMyPresents = async (req, res) => {
