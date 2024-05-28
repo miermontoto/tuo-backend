@@ -218,18 +218,13 @@ const tryChoosingPresent = async (req, res, present) => {
 		return
 	}
 
-	if (!friendList.some(friend => friend.email === present.userEmail)) {
+	if (!friendList.some(friend => friend.email === present.email)) {
 		sendResponse(res, Messages.NOT_BEFRIENDED)
 		return
 	}
 
-	if (!friendList.some(friend => (friend.email === present.userEmail && friend.friendship === 1))) {
+	if (!friendList.some(friend => (friend.email === present.email && friend.friendship === 1))) {
 		sendResponse(res, Messages.NOT_YOUR_FRIEND)
-		return
-	}
-
-	if (friendship.status != 200) {
-		sendResponse(res, friendship)
 		return
 	}
 
