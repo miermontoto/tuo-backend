@@ -68,7 +68,20 @@ router.get("/:id", async (req, res) => {
 
 	const result = await getPresent(presentId)
 
-	if (!checkPresent(req, res, result)) return
+	if (result.status) {
+		sendResponse(res, result)
+		return
+	}
+
+	if ((result.userId !== req.user.id)) {
+		const befriended = await areFriends(result.email, req.user.email)
+
+		// comprobar si estoy en la lista de amigos del otro usuario
+		if (befriended.status != 200) {
+			sendResponse(res, befriended)
+			return
+		}
+	}
 
 	sendResponse(res, Messages.GENERIC_OK, {present: result})
 })
@@ -92,7 +105,16 @@ router.delete("/:id", async (req, res) => {
 	}
 
 	const result = await getPresent(presentId)
-	if (!checkPresent(req, res, result)) return
+
+	if (result.status) {
+		sendResponse(res, result)
+		return false
+	}
+
+	if (result.userId !== req.user.id) {
+		sendResponse(res, Messages.NOT_YOUR_PRESENT)
+		return false
+	}
 
 	const deleted = await deletePresent(presentId)
 	sendResponse(res, deleted)
@@ -134,25 +156,6 @@ router.put("/:id", async (req, res) => {
 	const updated = await updatePresent(presentId, name, description, url, price)
 	sendResponse(res, updated)
 })
-
-
-/**
- * Comprobar si la respuesta de @code{getPresent} es correcta y el regalo
- * obtenido es del usuario que ejecuta la petición.
- */
-const checkPresent = (req, res, result) => {
-	if (result.status) {
-		sendResponse(res, result)
-		return false
-	}
-
-	if (result.userId !== req.user.id) {
-		sendResponse(res, Messages.NOT_YOUR_PRESENT)
-		return false
-	}
-
-	return true
-}
 
 
 const getMyPresents = async (req, res) => {
